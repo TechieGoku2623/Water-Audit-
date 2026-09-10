@@ -3,15 +3,19 @@ from __future__ import annotations
 import argparse
 import csv
 import re
+import sys
 from pathlib import Path
 from typing import Iterable
 
 import pdfplumber
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from etl.logging_utils import log_transformation
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_DISCLOSURES_DIR = PROJECT_ROOT / "data" / "raw" / "disclosures"
 SOURCE_INDEX_PATH = RAW_DISCLOSURES_DIR / "source_index.csv"
 EXTRACTED_OUTPUT_PATH = PROJECT_ROOT / "data" / "staging" / "disclosures.csv"

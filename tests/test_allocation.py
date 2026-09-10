@@ -143,8 +143,28 @@ def test_facility_wue_fallback_to_peers_and_downgrades_confidence() -> None:
 
 def test_facility_wue_returns_no_public_data_when_no_peers() -> None:
     bundle = _bundle()
-    bundle.facilities = bundle.facilities[bundle.facilities["facility_id"].isin(["f4"])]
-    result = facility_wue("f4", data=bundle)
+    bundle.facilities = pd.concat(
+        [
+            bundle.facilities,
+            pd.DataFrame(
+                [
+                    {
+                        "facility_id": "f5",
+                        "company": "epsilon",
+                        "name": "epsilon-1",
+                        "region": "r3",
+                        "lat": 0.0,
+                        "lon": 0.0,
+                        "it_capacity_mw": 5.0,
+                        "cooling_type": "liquid",
+                        "source_url": "https://example.com/f5",
+                    }
+                ]
+            ),
+        ],
+        ignore_index=True,
+    )
+    result = facility_wue("f5", data=bundle)
     assert result["method"] == "no_public_data"
     assert result["wue_l_per_kwh"] is None
     assert result["sample_size"] == 0

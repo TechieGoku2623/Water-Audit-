@@ -4,6 +4,7 @@ import argparse
 import csv
 import math
 import os
+import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
@@ -11,10 +12,13 @@ from urllib.parse import urlencode
 
 import requests
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from etl.logging_utils import log_transformation
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
 TARGET_REGIONS_PATH = PROJECT_ROOT / "data" / "staging" / "target_regions.csv"
 CLIMATE_OUTPUT_PATH = PROJECT_ROOT / "data" / "staging" / "climate.csv"
 
