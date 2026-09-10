@@ -36,10 +36,19 @@ export interface AuditSummary {
   fixtureCount: number;
   totalDailyLiters: number;
   totalMonthlyLiters: number;
+  totalYearlyLiters: number;
   monthlyCost: number;
+  yearlyCost: number;
   efficiencyScore: number;
+  costPerLiter: number;
+  currencySymbol: string;
   breakdown: FixtureBreakdown[];
   recommendations: Recommendation[];
+}
+
+export interface Settings {
+  costPerLiter: number;
+  currencySymbol: string;
 }
 
 export interface FixtureInput {

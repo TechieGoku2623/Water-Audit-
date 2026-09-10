@@ -112,6 +112,43 @@ h1 {
   font-weight: 500;
 }
 
+.card-sub {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.settings-bar {
+  margin-bottom: 20px;
+}
+
+.settings-bar h2 {
+  margin-bottom: 12px;
+}
+
+.settings-fields {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.settings-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.settings-fields input {
+  max-width: 200px;
+}
+
+.settings-hint {
+  margin: 0 0 4px;
+  font-size: 12px;
+}
+
 .grid {
   display: grid;
   grid-template-columns: minmax(280px, 360px) 1fr;
@@ -195,6 +232,106 @@ button.primary:hover {
 
 button.primary:active {
   transform: translateY(1px);
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.form-actions .primary {
+  flex: 1;
+}
+
+button.secondary {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+button.secondary:hover {
+  border-color: var(--accent);
+}
+
+.actions-col {
+  white-space: nowrap;
+}
+
+.actions-col .link {
+  padding: 0 4px;
+}
+
+tr.editing {
+  background: rgba(36, 193, 224, 0.1);
+}
+
+.chart-panel {
+  margin-top: 20px;
+}
+
+.chart {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chart-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 52px;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (max-width: 560px) {
+  .chart-row {
+    grid-template-columns: 100px 1fr 44px;
+  }
+}
+
+.chart-label {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chart-track {
+  background: var(--panel-2);
+  border-radius: 8px;
+  overflow: hidden;
+  height: 26px;
+}
+
+.chart-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  min-width: 2%;
+  transition: width 0.35s ease;
+}
+
+.chart-bar-value {
+  font-size: 12px;
+  font-weight: 700;
+  color: #04222b;
+  padding: 0 8px;
+  white-space: nowrap;
+}
+
+.chart-share {
+  text-align: right;
+  font-size: 13px;
+  color: var(--muted);
 }
 
 table.breakdown {

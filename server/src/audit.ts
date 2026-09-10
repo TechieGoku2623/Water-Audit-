@@ -4,12 +4,14 @@ import type {
   FixtureBreakdown,
   FixtureType,
   Recommendation,
+  Settings,
 } from "./types.js";
 
 const DAYS_PER_MONTH = 30;
+const DAYS_PER_YEAR = 365;
 
-/** Cost of water in USD per liter (roughly $7.60 per 1000 gallons). */
-export const COST_PER_LITER = 0.002;
+/** Default cost of water in USD per liter (roughly $7.60 per 1000 gallons). */
+export const DEFAULT_COST_PER_LITER = 0.002;
 
 /**
  * Per-use liter benchmarks for an efficient fixture. Anything meaningfully
@@ -28,7 +30,8 @@ function round(value: number, decimals = 2): number {
   return Math.round(value * factor) / factor;
 }
 
-export function summarize(fixtures: Fixture[]): AuditSummary {
+export function summarize(fixtures: Fixture[], settings: Settings): AuditSummary {
+  const costPerLiter = settings.costPerLiter;
   const breakdown: FixtureBreakdown[] = fixtures.map((f) => {
     const litersPerDay = f.litersPerUse * f.usesPerDay;
     const litersPerMonth = litersPerDay * DAYS_PER_MONTH;
@@ -36,7 +39,7 @@ export function summarize(fixtures: Fixture[]): AuditSummary {
       ...f,
       litersPerDay: round(litersPerDay),
       litersPerMonth: round(litersPerMonth),
-      monthlyCost: round(litersPerMonth * COST_PER_LITER),
+      monthlyCost: round(litersPerMonth * costPerLiter),
       shareOfTotal: 0,
     };
   });
@@ -62,7 +65,7 @@ export function summarize(fixtures: Fixture[]): AuditSummary {
       fixtureName: f.name,
       message: `Uses ${f.litersPerUse} L per use vs. an efficient benchmark of ${benchmark} L. Consider a low-flow ${f.fixtureType} to cut usage.`,
       monthlyLitersSaved,
-      monthlyCostSaved: round(monthlyLitersSaved * COST_PER_LITER),
+      monthlyCostSaved: round(monthlyLitersSaved * costPerLiter),
     });
   }
   recommendations.sort((a, b) => b.monthlyLitersSaved - a.monthlyLitersSaved);
@@ -82,12 +85,18 @@ export function summarize(fixtures: Fixture[]): AuditSummary {
         )
       : 100;
 
+  const totalYearlyLiters = totalDailyLiters * DAYS_PER_YEAR;
+
   return {
     fixtureCount: fixtures.length,
     totalDailyLiters: round(totalDailyLiters),
     totalMonthlyLiters: round(totalMonthlyLiters),
-    monthlyCost: round(totalMonthlyLiters * COST_PER_LITER),
+    totalYearlyLiters: round(totalYearlyLiters),
+    monthlyCost: round(totalMonthlyLiters * costPerLiter),
+    yearlyCost: round(totalYearlyLiters * costPerLiter),
     efficiencyScore,
+    costPerLiter,
+    currencySymbol: settings.currencySymbol,
     breakdown,
     recommendations,
   };

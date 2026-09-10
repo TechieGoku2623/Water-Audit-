@@ -1,4 +1,9 @@
-import type { AuditSummary, Fixture, FixtureInput } from "./types.ts";
+import type {
+  AuditSummary,
+  Fixture,
+  FixtureInput,
+  Settings,
+} from "./types.ts";
 
 async function handle<T>(res: Response): Promise<T> {
   if (!res.ok) {
@@ -32,7 +37,34 @@ export async function createFixture(input: FixtureInput): Promise<Fixture> {
   );
 }
 
+export async function updateFixture(
+  id: string,
+  input: FixtureInput,
+): Promise<Fixture> {
+  return handle(
+    await fetch(`/api/fixtures/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    }),
+  );
+}
+
 export async function deleteFixture(id: string): Promise<void> {
   const res = await fetch(`/api/fixtures/${id}`, { method: "DELETE" });
   if (!res.ok) throw new Error(`Failed to delete fixture (${res.status})`);
+}
+
+export async function getSettings(): Promise<Settings> {
+  return handle(await fetch("/api/settings"));
+}
+
+export async function updateSettings(input: Partial<Settings>): Promise<Settings> {
+  return handle(
+    await fetch("/api/settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    }),
+  );
 }

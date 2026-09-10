@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFixture, deleteFixture, getSummary } from "./api.ts";
-import type { AuditSummary, FixtureType } from "./types.ts";
+import {
+  createFixture,
+  deleteFixture,
+  getSettings,
+  getSummary,
+  updateFixture,
+  updateSettings,
+} from "./api.ts";
+import type { AuditSummary, FixtureType, Settings } from "./types.ts";
 
 const FIXTURE_TYPES: { value: FixtureType; label: string; typicalLiters: number }[] = [
   { value: "shower", label: "Shower", typicalLiters: 65 },
@@ -22,12 +29,20 @@ const emptyForm = {
 
 export function App() {
   const [summary, setSummary] = useState<AuditSummary | null>(null);
+  const [settings, setSettings] = useState<Settings | null>(null);
+  const [ratePer1000, setRatePer1000] = useState("");
+  const [currency, setCurrency] = useState("");
   const [form, setForm] = useState(emptyForm);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   async function refresh() {
-    setSummary(await getSummary());
+    const [s, cfg] = await Promise.all([getSummary(), getSettings()]);
+    setSummary(s);
+    setSettings(cfg);
+    setRatePer1000((cfg.costPerLiter * 1000).toString());
+    setCurrency(cfg.currencySymbol);
   }
 
   useEffect(() => {
@@ -36,21 +51,48 @@ export function App() {
       .finally(() => setLoading(false));
   }, []);
 
+  const cur = summary?.currencySymbol ?? "$";
+  const money = (value: number) => `${cur}${value.toFixed(2)}`;
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     try {
-      await createFixture(form);
+      if (editingId) {
+        await updateFixture(editingId, form);
+      } else {
+        await createFixture(form);
+      }
       setForm(emptyForm);
+      setEditingId(null);
       await refresh();
     } catch (err) {
       setError((err as Error).message);
     }
   }
 
+  function onEdit(id: string) {
+    const f = summary?.breakdown.find((b) => b.id === id);
+    if (!f) return;
+    setEditingId(id);
+    setForm({
+      name: f.name,
+      location: f.location,
+      fixtureType: f.fixtureType,
+      litersPerUse: f.litersPerUse,
+      usesPerDay: f.usesPerDay,
+    });
+  }
+
+  function onCancelEdit() {
+    setEditingId(null);
+    setForm(emptyForm);
+  }
+
   async function onDelete(id: string) {
     setError(null);
     try {
+      if (editingId === id) onCancelEdit();
       await deleteFixture(id);
       await refresh();
     } catch (err) {
@@ -65,6 +107,25 @@ export function App() {
       fixtureType,
       litersPerUse: preset ? preset.typicalLiters : prev.litersPerUse,
     }));
+  }
+
+  async function applySettings() {
+    if (!settings) return;
+    const perLiter = Number(ratePer1000) / 1000;
+    const symbol = currency.trim() || "$";
+    if (
+      perLiter === settings.costPerLiter &&
+      symbol === settings.currencySymbol
+    ) {
+      return;
+    }
+    setError(null);
+    try {
+      await updateSettings({ costPerLiter: perLiter, currencySymbol: symbol });
+      await refresh();
+    } catch (err) {
+      setError((err as Error).message);
+    }
   }
 
   const recommendedSavings = useMemo(
@@ -111,8 +172,9 @@ export function App() {
             </span>
           </div>
           <div className="card">
-            <span className="card-label">Monthly cost</span>
-            <span className="card-value">${summary.monthlyCost.toFixed(2)}</span>
+            <span className="card-label">Cost</span>
+            <span className="card-value">{money(summary.monthlyCost)}<small>/mo</small></span>
+            <span className="card-sub">{money(summary.yearlyCost)}/yr</span>
           </div>
           <div className="card highlight">
             <span className="card-label">Efficiency score</span>
@@ -121,9 +183,42 @@ export function App() {
         </section>
       )}
 
+      {settings && (
+        <section className="panel settings-bar">
+          <h2>Rate &amp; currency</h2>
+          <div className="settings-fields">
+            <label>
+              Water rate (per 1,000 L)
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                value={ratePer1000}
+                onChange={(e) => setRatePer1000(e.target.value)}
+                onBlur={applySettings}
+                onKeyDown={(e) => e.key === "Enter" && applySettings()}
+              />
+            </label>
+            <label>
+              Currency symbol
+              <input
+                maxLength={3}
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                onBlur={applySettings}
+                onKeyDown={(e) => e.key === "Enter" && applySettings()}
+              />
+            </label>
+            <p className="muted settings-hint">
+              Changes apply to all cost estimates below.
+            </p>
+          </div>
+        </section>
+      )}
+
       <div className="grid">
         <section className="panel">
-          <h2>Add a fixture</h2>
+          <h2>{editingId ? "Edit fixture" : "Add a fixture"}</h2>
           <form onSubmit={onSubmit} className="fixture-form">
             <label>
               Name
@@ -183,9 +278,16 @@ export function App() {
                 />
               </label>
             </div>
-            <button type="submit" className="primary">
-              Add fixture
-            </button>
+            <div className="form-actions">
+              <button type="submit" className="primary">
+                {editingId ? "Save changes" : "Add fixture"}
+              </button>
+              {editingId && (
+                <button type="button" className="secondary" onClick={onCancelEdit}>
+                  Cancel
+                </button>
+              )}
+            </div>
           </form>
         </section>
 
@@ -199,13 +301,13 @@ export function App() {
                   <th>Type</th>
                   <th className="num">L/day</th>
                   <th className="num">Share</th>
-                  <th className="num">$/mo</th>
-                  <th></th>
+                  <th className="num">{cur}/mo</th>
+                  <th className="actions-col"></th>
                 </tr>
               </thead>
               <tbody>
                 {summary.breakdown.map((f) => (
-                  <tr key={f.id}>
+                  <tr key={f.id} className={editingId === f.id ? "editing" : ""}>
                     <td>
                       <strong>{f.name}</strong>
                       {f.location && <span className="muted"> · {f.location}</span>}
@@ -213,8 +315,15 @@ export function App() {
                     <td className="muted">{f.fixtureType}</td>
                     <td className="num">{f.litersPerDay.toLocaleString()}</td>
                     <td className="num">{f.shareOfTotal}%</td>
-                    <td className="num">${f.monthlyCost.toFixed(2)}</td>
-                    <td className="num">
+                    <td className="num">{money(f.monthlyCost)}</td>
+                    <td className="num actions-col">
+                      <button
+                        className="link"
+                        onClick={() => onEdit(f.id)}
+                        aria-label={`Edit ${f.name}`}
+                      >
+                        ✎
+                      </button>
                       <button
                         className="link danger"
                         onClick={() => onDelete(f.id)}
@@ -233,12 +342,40 @@ export function App() {
         </section>
       </div>
 
+      {summary && summary.breakdown.length > 0 && (
+        <section className="panel chart-panel">
+          <h2>Usage by fixture</h2>
+          <ul className="chart">
+            {[...summary.breakdown]
+              .sort((a, b) => b.litersPerDay - a.litersPerDay)
+              .map((f) => (
+                <li key={f.id} className="chart-row">
+                  <span className="chart-label" title={f.name}>
+                    {f.name}
+                  </span>
+                  <div className="chart-track">
+                    <div
+                      className="chart-bar"
+                      style={{ width: `${Math.max(f.shareOfTotal, 2)}%` }}
+                    >
+                      <span className="chart-bar-value">
+                        {f.litersPerDay.toLocaleString()} L/day
+                      </span>
+                    </div>
+                  </div>
+                  <span className="chart-share">{f.shareOfTotal}%</span>
+                </li>
+              ))}
+          </ul>
+        </section>
+      )}
+
       {summary && summary.recommendations.length > 0 && (
         <section className="panel recommendations">
           <h2>
             Recommendations
             <span className="savings-pill">
-              Save up to ${recommendedSavings.toFixed(2)}/mo
+              Save up to {money(recommendedSavings)}/mo
             </span>
           </h2>
           <ul>
@@ -250,7 +387,7 @@ export function App() {
                 </div>
                 <div className="rec-savings">
                   <span>{r.monthlyLitersSaved.toLocaleString()} L/mo</span>
-                  <span className="muted">${r.monthlyCostSaved.toFixed(2)}/mo</span>
+                  <span className="muted">{money(r.monthlyCostSaved)}/mo</span>
                 </div>
               </li>
             ))}

@@ -36,12 +36,15 @@ npm run typecheck    # type-check both workspaces
 
 ## API
 
-| Method | Path                 | Description                                   |
-| ------ | -------------------- | --------------------------------------------- |
-| GET    | `/api/health`        | Health check                                  |
-| GET    | `/api/fixtures`      | List fixtures                                 |
-| POST   | `/api/fixtures`      | Create a fixture                              |
-| DELETE | `/api/fixtures/:id`  | Delete a fixture                              |
+| Method | Path                 | Description                                    |
+| ------ | -------------------- | ---------------------------------------------- |
+| GET    | `/api/health`        | Health check                                   |
+| GET    | `/api/fixtures`      | List fixtures                                  |
+| POST   | `/api/fixtures`      | Create a fixture                               |
+| PUT    | `/api/fixtures/:id`  | Update a fixture                               |
+| DELETE | `/api/fixtures/:id`  | Delete a fixture                               |
+| GET    | `/api/settings`      | Get water rate + currency settings             |
+| PUT    | `/api/settings`      | Update water rate and/or currency symbol       |
 | GET    | `/api/summary`       | Usage/cost breakdown + savings recommendations |
 
 Fixture payload:
@@ -58,6 +61,18 @@ Fixture payload:
 
 `fixtureType` is one of `shower`, `toilet`, `faucet`, `dishwasher`,
 `washingMachine`, `irrigation`, `other`.
+
+Settings payload (either field is optional):
+
+```json
+{
+  "costPerLiter": 0.002,
+  "currencySymbol": "$"
+}
+```
+
+The configured `costPerLiter` drives all cost and savings figures in
+`/api/summary`. Fixtures and settings are stored as JSON files under `data/`.
 
 ## Cloud Agent environment
 

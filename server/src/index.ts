@@ -1,8 +1,15 @@
 import cors from "cors";
 import express from "express";
 import { summarize } from "./audit.js";
-import { createFixture, deleteFixture, listFixtures } from "./store.js";
-import { parseFixtureInput } from "./validation.js";
+import {
+  createFixture,
+  deleteFixture,
+  getSettings,
+  listFixtures,
+  updateFixture,
+  updateSettings,
+} from "./store.js";
+import { parseFixtureInput, parseSettingsInput } from "./validation.js";
 
 const app = express();
 const PORT = Number(process.env.PORT ?? 3001);
@@ -28,6 +35,20 @@ app.post("/api/fixtures", (req, res) => {
   }
 });
 
+app.put("/api/fixtures/:id", (req, res) => {
+  try {
+    const input = parseFixtureInput(req.body);
+    const updated = updateFixture(req.params.id, input);
+    if (!updated) {
+      res.status(404).json({ error: "Fixture not found." });
+      return;
+    }
+    res.json(updated);
+  } catch (err) {
+    res.status(400).json({ error: (err as Error).message });
+  }
+});
+
 app.delete("/api/fixtures/:id", (req, res) => {
   const removed = deleteFixture(req.params.id);
   if (!removed) {
@@ -37,8 +58,21 @@ app.delete("/api/fixtures/:id", (req, res) => {
   res.status(204).end();
 });
 
+app.get("/api/settings", (_req, res) => {
+  res.json(getSettings());
+});
+
+app.put("/api/settings", (req, res) => {
+  try {
+    const input = parseSettingsInput(req.body);
+    res.json(updateSettings(input));
+  } catch (err) {
+    res.status(400).json({ error: (err as Error).message });
+  }
+});
+
 app.get("/api/summary", (_req, res) => {
-  res.json(summarize(listFixtures()));
+  res.json(summarize(listFixtures(), getSettings()));
 });
 
 app.listen(PORT, () => {

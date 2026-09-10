@@ -1,4 +1,4 @@
-import type { FixtureInput, FixtureType } from "./types.js";
+import type { FixtureInput, FixtureType, SettingsInput } from "./types.js";
 
 const FIXTURE_TYPES: FixtureType[] = [
   "shower",
@@ -39,4 +39,35 @@ export function parseFixtureInput(body: unknown): FixtureInput {
   }
 
   return { name, location, fixtureType, litersPerUse, usesPerDay };
+}
+
+export function parseSettingsInput(body: unknown): SettingsInput {
+  if (typeof body !== "object" || body === null) {
+    throw new Error("Request body must be a JSON object.");
+  }
+  const b = body as Record<string, unknown>;
+  const input: SettingsInput = {};
+
+  if (b.costPerLiter !== undefined) {
+    const costPerLiter = Number(b.costPerLiter);
+    if (!Number.isFinite(costPerLiter) || costPerLiter < 0) {
+      throw new Error("`costPerLiter` must be a non-negative number.");
+    }
+    input.costPerLiter = costPerLiter;
+  }
+
+  if (b.currencySymbol !== undefined) {
+    const currencySymbol =
+      typeof b.currencySymbol === "string" ? b.currencySymbol.trim() : "";
+    if (!currencySymbol || currencySymbol.length > 3) {
+      throw new Error("`currencySymbol` must be a 1-3 character string.");
+    }
+    input.currencySymbol = currencySymbol;
+  }
+
+  if (input.costPerLiter === undefined && input.currencySymbol === undefined) {
+    throw new Error("Provide at least one of `costPerLiter` or `currencySymbol`.");
+  }
+
+  return input;
 }
