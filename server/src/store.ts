@@ -24,22 +24,22 @@ function seedFixtures(): Fixture[] {
       name: "Master Bathroom Shower",
       location: "Master Bath",
       fixtureType: "shower",
-      litersPerUse: 75,
+      litersPerUse: 49,
       usesPerDay: 2,
     },
     {
       name: "Guest Toilet",
       location: "Hallway",
       fixtureType: "toilet",
-      litersPerUse: 11,
-      usesPerDay: 8,
+      litersPerUse: 6,
+      usesPerDay: 6,
     },
     {
       name: "Kitchen Faucet",
       location: "Kitchen",
       fixtureType: "faucet",
-      litersPerUse: 6,
-      usesPerDay: 12,
+      litersPerUse: 4,
+      usesPerDay: 11,
     },
   ];
   return base.map((f) => ({ ...f, id: randomUUID(), createdAt: now }));
