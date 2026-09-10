@@ -1,0 +1,12 @@
+water_audit:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost
+      user: water_audit
+      password: water_audit
+      port: 5432
+      dbname: water_audit
+      schema: public
+      threads: 4

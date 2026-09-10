@@ -1,0 +1,48 @@
+version: 2
+
+models:
+  - name: stg_facilities
+    columns:
+      - name: facility_id
+        tests:
+          - not_null
+          - unique
+      - name: source_url
+        tests:
+          - not_null
+
+  - name: stg_disclosures
+    columns:
+      - name: facility_id
+        tests:
+          - not_null
+      - name: source_url
+        tests:
+          - not_null
+
+  - name: stg_permits
+    columns:
+      - name: permit_id
+        tests:
+          - not_null
+      - name: source_url
+        tests:
+          - not_null
+
+  - name: stg_climate
+    columns:
+      - name: source_url
+        tests:
+          - not_null
+
+  - name: facility_water_profile
+    columns:
+      - name: facility_id
+        tests:
+          - not_null
+      - name: month
+        tests:
+          - not_null
+      - name: source_url
+        tests:
+          - not_null
