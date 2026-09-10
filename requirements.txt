@@ -1,0 +1,9 @@
+pandas
+pdfplumber
+requests
+dbt-postgres
+fastapi
+uvicorn
+streamlit
+pytest
+psycopg[binary]

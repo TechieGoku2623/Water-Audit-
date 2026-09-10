@@ -1,0 +1,24 @@
+name: dc_water_attribution_audit
+version: "1.0.0"
+config-version: 2
+
+profile: water_audit
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+analysis-paths: ["analysis"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  dc_water_attribution_audit:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table
