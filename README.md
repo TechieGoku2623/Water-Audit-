@@ -17,17 +17,19 @@ A household / facility dashboard that turns fixtures into daily liters, monthly 
 
 ## Watch the demo
 
+The GIF **plays on this page**. Cursor’s recorder logo and end-of-video cube bumper have been removed.
+
 <p align="center">
-  <a href="docs/demo.mp4">
-    <img src="docs/demo-poster.jpg" alt="Water Audit dashboard walkthrough" width="920"/>
-  </a>
+  <img src="docs/demo.gif" alt="Water Audit dashboard walkthrough — plays inline" width="920"/>
 </p>
 
 <p align="center">
-  <a href="docs/demo.mp4"><strong>▶ Play walkthrough (docs/demo.mp4)</strong></a>
+  <a href="https://github.com/TechieGoku2623/Water-Audit-/blob/main/docs/demo.mp4"><strong>▶ Open HD player on GitHub</strong></a>
+  ·
+  <a href="docs/watch.html">local HTML player</a>
+  ·
+  <a href="docs/demo.webp">WebP</a>
 </p>
-
-<video src="docs/demo.mp4" controls width="100%" poster="docs/demo-poster.jpg"></video>
 
 | Time in clip | What you are seeing | Why it matters |
 | --- | --- | --- |
