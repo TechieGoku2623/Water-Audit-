@@ -2,9 +2,9 @@
 
 # Water Audit
 
-**See where the water (and the bill) actually go**
+**See which fixture is driving the bill — and what a low-flow swap would save**
 
-A household / facility dashboard that turns fixtures into daily liters, monthly cost, and concrete savings — not a spreadsheet guess.
+A household or small-facility dashboard that turns fixture use into daily liters, monthly cost, and concrete savings at *your* water rate. Not a generic conservation PDF.
 
 [![Node](https://img.shields.io/badge/Node-20+-339933?logo=node.js&logoColor=white)](#getting-started)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](#repository-map)
@@ -15,106 +15,117 @@ A household / facility dashboard that turns fixtures into daily liters, monthly 
 
 ---
 
+## The problem
+
+Most water “audits” dump the same advice on every building: shorter showers, fix leaks, install aerators. That does not answer the questions that change behavior:
+
+- Which fixture is actually using the water?
+- What does that cost at this site’s rate?
+- If I swap this shower for a 40 L/use head, how many liters and dollars per month do I get back?
+
+Without those numbers, conservation stays abstract. With them, a facility manager or homeowner can prioritize the one fixture that dominates the bill.
+
+## What this software does
+
+You register each fixture (shower, toilet, faucet, dishwasher, washer, irrigation, other) with **liters per use** and **uses per day**. The API multiplies those by your **cost per liter**, compares each fixture to an efficient benchmark, and returns:
+
+- Daily and monthly volume
+- Monthly and annual cost
+- Share of total use
+- An efficiency score (0–100)
+- Recommendations with liters and currency saved if you hit the benchmark
+
+The React dashboard and the Express API share one model. Change a shower from 65 L to 40 L and the KPIs, breakdown table, bar chart, and recommendation move together.
+
+These are **estimates from the values you enter**, not smart-meter telemetry.
+
+---
+
 ## Watch the demo
 
-This walkthrough **plays on this page** — it does not download a file.
+The walkthrough **plays on this page**.
 
 <p align="center">
   <img src="docs/demo.gif" alt="Water Audit dashboard walkthrough — plays inline" width="920"/>
 </p>
 
-| Time in clip | What you are seeing | Why it matters |
-| --- | --- | --- |
-| Header KPIs | Fixtures, daily L, monthly L, cost, efficiency score | One glance at whether the house is efficient |
-| Fixture table | Shower, toilet, faucet with share of usage | You can see *which* fixture is driving the bill |
-| Edit Guest Toilet | Form fills, then Cancel | Edits are real API writes; cancel is safe |
-| Recommendations | Low-flow shower savings in L/month and $/month | Advice is tied to the same rate as the bill |
-
----
-
-## In plain English
-
-Most “water audits” dump a PDF of generic tips. This app does the arithmetic that actually changes behavior:
-
-1. You register each fixture (shower, toilet, faucet, dishwasher, washer, irrigation).
-2. The server multiplies **liters per use × uses per day × your water rate**.
-3. It compares each fixture to an efficient benchmark and tells you how much you would save.
-
-The UI and the API share one model. Change a shower from 65 L to 40 L and the monthly cost, bar chart, and recommendation all move together.
+| In the clip | Why it matters |
+| --- | --- |
+| Header KPIs | Fixtures, daily L, monthly L, cost, efficiency |
+| Fixture table | Which fixture owns the bill |
+| Edit / cancel | Writes go through the API; cancel is safe |
+| Recommendations | Savings use the same rate as the cost column |
 
 ---
 
 ## How the numbers are built
 
 ```text
-Fixture  →  liters/use × uses/day  →  daily L
-                                      │
-                                      ├─► monthly L  (× 30)
-                                      └─► cost       (× costPerLiter)
+liters/use × uses/day     →  daily L
+daily L × 30              →  monthly L
+monthly L × costPerLiter  →  monthly cost
 
-Recommendation  =  (actual L/use − efficient L/use) × uses/day × 30
+If liters/use is well above the efficient benchmark:
+  savings = (actual − benchmark) × uses/day × 30
 ```
 
-`costPerLiter` lives in settings (shown in the UI as a rate per 1,000 L). Currency is configurable. Seed data on first run is an efficient household so the demo starts at score **90/100**.
+| Fixture type | Efficient benchmark (L / use) |
+| --- | ---: |
+| Shower | 40 |
+| Toilet | 6 |
+| Faucet | 4 |
+| Dishwasher | 12 |
+| Washing machine | 50 |
 
----
+Irrigation and `other` are tracked in totals; they do not currently emit benchmark savings. Rate is stored as cost per liter (the UI shows a rate per 1,000 L). First run seeds an efficient household so the demo starts near **90/100**.
 
-## Repository map
+### Repository map
 
 ```text
 water-audit-/
-├── client/                 React + Vite + TypeScript UI  (:5173)
-│   └── src/App.tsx         Dashboard, fixtures, recommendations
-├── server/                 Express + TypeScript API       (:3001)
+├── client/                 React + Vite + TypeScript   (:5173)
+├── server/                 Express + TypeScript        (:3001)
 │   └── src/
 │       ├── index.ts        REST routes
 │       ├── store.ts        JSON persistence
 │       ├── audit.ts        Totals + savings
-│       └── validation.ts   Fixture / settings parsing
-├── data/                   fixtures.json + settings (created at runtime)
-├── docs/
-│   ├── demo.mp4
-│   └── demo-poster.jpg
-├── package.json            npm workspaces root
-└── README.md
+│       └── validation.ts
+├── data/                   fixtures + settings (created at runtime)
+├── docs/demo.gif
+└── package.json            npm workspaces
 ```
+
+Persistence is local JSON (`data/`). There is no login or multi-tenant cloud.
 
 ---
 
 ## Getting started
 
-Node.js **20+** (developed on 22).
+Node.js **20+**.
 
 ```bash
-npm install        # both workspaces
-npm run dev        # API :3001  +  web :5173
+npm install
+npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173). Vite proxies `/api/*` to the server.
+Open [http://localhost:5173](http://localhost:5173). Vite proxies `/api` to port **3001**.
 
 | Command | What it does |
 | --- | --- |
-| `npm run dev:server` | API only (`tsx` watch) |
+| `npm run dev:server` | API only |
 | `npm run dev:client` | Web client only |
-| `npm run build` | Type-check + build both |
+| `npm run build` | Type-check and build both |
 | `npm run typecheck` | Type-check both workspaces |
 
----
-
-## API
+### API
 
 | Method | Path | Description |
 | --- | --- | --- |
 | `GET` | `/api/health` | Health check |
-| `GET` | `/api/fixtures` | List fixtures |
-| `POST` | `/api/fixtures` | Create a fixture |
-| `PUT` | `/api/fixtures/:id` | Update a fixture |
-| `DELETE` | `/api/fixtures/:id` | Delete a fixture |
-| `GET` | `/api/settings` | Water rate + currency |
-| `PUT` | `/api/settings` | Update rate and/or symbol |
+| `GET` / `POST` | `/api/fixtures` | List / create |
+| `PUT` / `DELETE` | `/api/fixtures/:id` | Update / delete |
+| `GET` / `PUT` | `/api/settings` | Rate and currency |
 | `GET` | `/api/summary` | Usage, cost, recommendations |
-
-Fixture body:
 
 ```json
 {
@@ -126,8 +137,8 @@ Fixture body:
 }
 ```
 
-`fixtureType` is one of `shower`, `toilet`, `faucet`, `dishwasher`, `washingMachine`, `irrigation`, `other`.
+Optional env: `PORT`, `WATER_AUDIT_DATA_DIR`, `WATER_AUDIT_DATA_FILE`.
 
 ---
 
-<p align="center"><sub>Water Audit · measure, then save</sub></p>
+<p align="center"><sub>Water Audit · measure the fixture, then save against the bill</sub></p>
