@@ -9,7 +9,7 @@ A household / facility dashboard that turns fixtures into daily liters, monthly 
 [![Node](https://img.shields.io/badge/Node-20+-339933?logo=node.js&logoColor=white)](#getting-started)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](#repository-map)
 [![React](https://img.shields.io/badge/React-Vite-61DAFB?logo=react&logoColor=black)](#getting-started)
-[![Demo](https://img.shields.io/badge/Demo-docs%2Fdemo.mp4-2B6CB0)](docs/demo.mp4)
+[![Demo](https://img.shields.io/badge/Demo-plays%20on%20this%20page-2B6CB0)](#watch-the-demo)
 
 </div>
 
@@ -17,18 +17,16 @@ A household / facility dashboard that turns fixtures into daily liters, monthly 
 
 ## Watch the demo
 
-The GIF **plays on this page**. Cursor’s recorder logo and end-of-video cube bumper have been removed.
+The preview **plays on this page**. The Cursor cube end-card is not in the file.
 
 <p align="center">
   <img src="docs/demo.gif" alt="Water Audit dashboard walkthrough — plays inline" width="920"/>
 </p>
 
 <p align="center">
-  <a href="https://github.com/TechieGoku2623/Water-Audit-/blob/main/docs/demo.mp4"><strong>▶ Open HD player on GitHub</strong></a>
+  <a href="https://github.com/TechieGoku2623/Water-Audit-/blob/main/docs/demo.mp4"><strong>HD in-browser player</strong></a>
   ·
-  <a href="docs/watch.html">local HTML player</a>
-  ·
-  <a href="docs/demo.webp">WebP</a>
+  <a href="docs/watch.html">HTML player</a>
 </p>
 
 | Time in clip | What you are seeing | Why it matters |
