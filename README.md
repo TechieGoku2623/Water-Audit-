@@ -6,6 +6,8 @@ consumption and cost, and get efficiency recommendations with projected savings.
 
 ## Demo
 
+[![Water Audit dashboard demo](docs/demo-poster.jpg)](docs/demo.mp4)
+
 <video src="docs/demo.mp4" controls width="100%"></video>
 
 If the player does not render on GitHub, download **[docs/demo.mp4](docs/demo.mp4)**.
