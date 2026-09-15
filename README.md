@@ -4,6 +4,28 @@ A small full-stack app to audit household/facility water use: register fixtures
 (showers, toilets, faucets, appliances, irrigation), estimate daily/monthly
 consumption and cost, and get efficiency recommendations with projected savings.
 
+## Demo
+
+<video src="docs/demo.mp4" controls width="100%"></video>
+
+If the player does not render on GitHub, download **[docs/demo.mp4](docs/demo.mp4)**.
+
+The walkthrough opens the dashboard, reviews seeded fixtures, checks daily/monthly cost, and applies an efficiency recommendation.
+
+## Repository structure
+
+```text
+water-audit-/
+├── client/                 # React + Vite + TypeScript UI (:5173)
+│   └── src/App.tsx
+├── server/                 # Express + TypeScript API (:3001)
+│   └── src/{index,store,audit,validation}.ts
+├── data/                   # JSON fixtures + settings (created at runtime)
+├── docs/demo.mp4
+├── package.json            # npm workspaces root
+└── README.md
+```
+
 ## Stack
 
 - **Server** (`server/`): Node + Express + TypeScript REST API. Fixtures are
